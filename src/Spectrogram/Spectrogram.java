@@ -15,20 +15,17 @@
 *  Info: http://0110.be/tag/TarsosDSP
 *  Github: https://github.com/JorenSix/TarsosDSP
 *  Releases: http://0110.be/releases/TarsosDSP/
-*Michael Olson
-*Daniel Davis
-*Sam Schneller  
-*
+*  
 *  TarsosDSP includes modified source code by various authors,
 *  for credits and info, see README.
 * 
 ABOUT: this is the main class in the Spectrogram analysis system. It handles the information processed by the Spectrogram analysis system.
- */
+*/
+
+
 package Spectrogram;
 //Import all necessary items
-
 import Formants.Analysis;
-import Formants.DataPoint;
 import Spectrogram.PitchDetectionPanel;
 import Spectrogram.InputPanel;
 import java.awt.BorderLayout;
@@ -40,6 +37,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -65,344 +63,257 @@ import be.tarsos.dsp.pitch.PitchDetectionHandler;
 import be.tarsos.dsp.pitch.PitchDetectionResult;
 import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
-import be.tarsos.dsp.util.PitchConverter;
 import be.tarsos.dsp.util.fft.FFT;
-import java.awt.Color;
-import java.util.ArrayList;
 
 //create a public class called Spectogram that extends JFrame and implements PitchDectetionHandler
 public class Spectrogram extends JFrame implements PitchDetectionHandler {
-
-    //initalize all variables, make private
-    private static final long serialVersionUID = 1383896180290138076L;
-    private final SpectrogramPanel panel;
-    private AudioDispatcher dispatcher;
-    private Mixer currentMixer;
-    private PitchEstimationAlgorithm algo;
-    private double pitch;
-    private Analysis a;
-
-    private float sampleRate = 44100;
-    private int bufferSize = 1024 * 4;
-    private int overlap = 768 * 4;
-    private int countIter = 0;
-
-    private String fileName;
-
-    //create new ActionListener, set equal to new ActionListener() taking no parameters
-    private ActionListener algoChangeListener = new ActionListener() {
-        //add @Override
-        @Override
-        // create method called actionPerformed that takes a final ActionEvent
-        public void actionPerformed(final ActionEvent e) {
-            //create String name, access ActionEvent, set name equal to method .getActionCommand() 
-            String name = e.getActionCommand();
-            //create new PitchEstimationAlgorithm set equal to the result of the PitchEstimaitonAlgorithm method .valueOf(String) taking name as the parameter 
-            PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
-            //set algo to newAlgo
-            algo = newAlgo;
-            //create try/ catch loop
-            try {
-                //activate setNewMixer method, takes currentMixer as parameter
-                setNewMixer(currentMixer);
-                //set catch for an unavailable line
-            } catch (LineUnavailableException e1) {
-                // trace the problem
-                e1.printStackTrace();
-                //set catch for an unsupported audio file
-            } catch (UnsupportedAudioFileException e1) {
-                //trace the problem
-                e1.printStackTrace();
-            }
-        }
-    };
-    // create public constructor
-
-    public Spectrogram(String fileName) {
-        //this.----- refers to current method
-        this.setLayout(new BorderLayout());
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Spectrogram");
-        panel = new SpectrogramPanel();
-        algo = PitchEstimationAlgorithm.DYNAMIC_WAVELET;
-        this.fileName = fileName;
-
-        //create new JPanel set equal to new PitchDetectionPanel with parameters algoChangeListener
-        JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
-
-        //create new JPanel set equal to new InputPanel()
-        JPanel inputPanel = new InputPanel();
-
-        //access addPropertyChangeListener() in inputPanel variable, set parameters to "mixer", and new PropertyChangeListener()
-        inputPanel.addPropertyChangeListener("mixer",
-                new PropertyChangeListener() {
-            @Override
-            //create new public void method propertyChange() with PropertyChangeEvent variable as parameter
-            public void propertyChange(PropertyChangeEvent arg0) {
-                //
-                try {
-                    setNewMixer((Mixer) arg0.getNewValue());
-                } catch (LineUnavailableException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (UnsupportedAudioFileException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        JPanel containerPanel = new JPanel(new GridLayout(1, 0));
-        containerPanel.add(inputPanel);
-        containerPanel.add(pitchDetectionPanel);
-        this.add(containerPanel, BorderLayout.NORTH);
-
-        JPanel otherContainer = new JPanel(new BorderLayout());
-        otherContainer.add(panel, BorderLayout.CENTER);
-        otherContainer.setBorder(new TitledBorder("3. Utter a sound (whistling works best)"));
-
-        this.add(otherContainer, BorderLayout.CENTER);
-    }
+	
+	//initalize all variables, make private
+	public Analysis a;
+	private static final long serialVersionUID = 1383896180290138076L;
+	private final SpectrogramPanel panel;
+	private AudioDispatcher dispatcher;
+	private Mixer currentMixer;	
+	private PitchEstimationAlgorithm algo;
+	private double pitch; 
+	
+	private float sampleRate = 44100;
+	private int bufferSize = 1024 * 4;
+	private int overlap = 768 * 4 ;
+	
+	private String fileName;
+	
+	//create new ActionListener, set equal to new ActionListener() taking no parameters
+	private ActionListener algoChangeListener = new ActionListener(){
+            //add @Override
+		@Override
+                // create method called actionPerformed that takes a final ActionEvent
+		public void actionPerformed(final ActionEvent e) {
+                    //create String name, access ActionEvent, set name equal to method .getActionCommand() 
+			String name = e.getActionCommand();
+                        //create new PitchEstimationAlgorithm set equal to the result of the PitchEstimaitonAlgorithm method .valueOf(String) taking name as the parameter 
+			PitchEstimationAlgorithm newAlgo = PitchEstimationAlgorithm.valueOf(name);
+                        //set algo to newAlgo
+			algo = newAlgo;
+                        //create try/ catch loop
+			try {
+                            //activate setNewMixer method, takes currentMixer as parameter
+				setNewMixer(currentMixer);
+                          //set catch for an unavailable line
+			} catch (LineUnavailableException e1) {
+                                // trace the problem
+				e1.printStackTrace();
+                          //set catch for an unsupported audio file
+			} catch (UnsupportedAudioFileException e1) {
+                                //trace the problem
+				e1.printStackTrace();
+			}
+	}};
+		// create public constructor
+	public Spectrogram(String fileName){
+            //this.----- refers to current method
+		this.setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("Spectrogram");
+		panel = new SpectrogramPanel();
+		algo = PitchEstimationAlgorithm.DYNAMIC_WAVELET;
+		this.fileName = fileName;
+		
+                //create new JPanel set equal to new PitchDetectionPanel with parameters algoChangeListener
+		JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
+		
+                //create new JPanel set equal to new InputPanel()
+		JPanel inputPanel = new InputPanel();
+	
+                //access addPropertyChangeListener() in inputPanel variable, set parameters to "mixer", and new PropertyChangeListener()
+		inputPanel.addPropertyChangeListener("mixer",
+				new PropertyChangeListener() {
+					@Override
+                                        //create new public void method propertyChange() with PropertyChangeEvent variable as parameter
+					public void propertyChange(PropertyChangeEvent arg0) {
+                                            //
+						try {
+							setNewMixer((Mixer) arg0.getNewValue());
+						} catch (LineUnavailableException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedAudioFileException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+		
+		JPanel containerPanel = new JPanel(new GridLayout(1,0));
+		containerPanel.add(inputPanel);
+		containerPanel.add(pitchDetectionPanel);
+		this.add(containerPanel,BorderLayout.NORTH);
+		
+		JPanel otherContainer = new JPanel(new BorderLayout());
+		otherContainer.add(panel,BorderLayout.CENTER);
+		otherContainer.setBorder(new TitledBorder("3. Utter a sound (whistling works best)"));
+		
+		
+		this.add(otherContainer,BorderLayout.CENTER);
+	}
 
     public Spectrogram() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+	
+	
+	
+	private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
 
-    private void setNewMixer(Mixer mixer) throws LineUnavailableException, UnsupportedAudioFileException {
+		if(dispatcher!= null){
+			dispatcher.stop();
+		}
+		if(fileName == null){
+			final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
+					false);
+			final DataLine.Info dataLineInfo = new DataLine.Info(
+					TargetDataLine.class, format);
+			TargetDataLine line;
+			line = (TargetDataLine) mixer.getLine(dataLineInfo);
+			final int numberOfSamples = bufferSize;
+			line.open(format, numberOfSamples);
+			line.start();
+			final AudioInputStream stream = new AudioInputStream(line);
+                       
+			JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
+                         System.out.println(audioStream);
+			// create a new dispatcher
+			dispatcher = new AudioDispatcher(audioStream, bufferSize,
+					overlap);
+		} else {
+			try {
+				File audioFile = new File(fileName);
+				dispatcher = AudioDispatcherFactory.fromFile(audioFile, bufferSize, overlap);
+				AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+				dispatcher.addAudioProcessor(new AudioPlayer(format));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		currentMixer = mixer;
 
-        if (dispatcher != null) {
-            dispatcher.stop();
-        }
-        if (fileName == null) {
-            final AudioFormat format = new AudioFormat(sampleRate, 16, 1, true,
-                    false);
-            final DataLine.Info dataLineInfo = new DataLine.Info(
-                    TargetDataLine.class, format);
-            TargetDataLine line;
-            line = (TargetDataLine) mixer.getLine(dataLineInfo);
-            final int numberOfSamples = bufferSize;
-            line.open(format, numberOfSamples);
-            line.start();
-            final AudioInputStream stream = new AudioInputStream(line);
+		// add a processor, handle pitch event.
+		dispatcher.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
+		dispatcher.addAudioProcessor(fftProcessor);
 
-            JVMAudioInputStream audioStream = new JVMAudioInputStream(stream);
-            System.out.println(audioStream);
-            // create a new dispatcher
-            dispatcher = new AudioDispatcher(audioStream, bufferSize,
-                    overlap);
-        } else {
-            try {
-                File audioFile = new File(fileName);
-                dispatcher = AudioDispatcherFactory.fromFile(audioFile, bufferSize, overlap);
-                AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
-                dispatcher.addAudioProcessor(new AudioPlayer(format));
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+		// run the dispatcher (on a new thread).
+		new Thread(dispatcher,"Audio dispatching").start();
+	}
+	
+	AudioProcessor fftProcessor = new AudioProcessor(){
+		
+		FFT fft = new FFT(bufferSize);
+		float[] amplitudes = new float[bufferSize/2];
+
+		@Override
+		public void processingFinished() {
+			// TODO Auto-generated method stub
+		}
+
+		@Override
+                
+                //extract info from here?
+		public boolean process(AudioEvent audioEvent) {
+                        
+                        
+			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
+			float[] transformbuffer = new float[bufferSize*2];
+			System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length); 
+			fft.forwardTransform(transformbuffer);
+			fft.modulus(transformbuffer, amplitudes);
+                        float[] amplitudesTwo = modulus(transformbuffer, amplitudes);
+                        // just extract current pitch from spectrogramPanel, amplitude 
+                        //System.out.println("Pitch: " + panel.currentPitch);
+                        //System.out.println("Amplitudes: " + writeAmplitudes(amplitudes));
+                        //System.out.println("Amplitudes 2: " + writeAmplitudesTwo(amplitudesTwo));
+                        //System.out.println("Time: " + System.nanoTime());
+                        //System.out.println("FFT: " + fft);
+			a = panel.drawFFT(pitch, amplitudes,fft, a);
+			panel.repaint();
+
+			return true;
+		}
+		
+	};
+	
+	@Override
+	public void handlePitch(PitchDetectionResult pitchDetectionResult,AudioEvent audioEvent) {
+		if(pitchDetectionResult.isPitched()){
+			pitch = pitchDetectionResult.getPitch();
+		} else {
+			pitch = -1;
+		}
+		
+	}
+        
+        public String writeAmplitudes(float[] amplitudes){
+            String results = "";
+            for(int a = 0; a < amplitudes.length; a++){
+                results = results + " " + Float.toString(amplitudes[a]);
             }
+            return results;
         }
-        currentMixer = mixer;
-
-        // add a processor, handle pitch event.
-        dispatcher.addAudioProcessor(new PitchProcessor(algo, sampleRate, bufferSize, this));
-        dispatcher.addAudioProcessor(fftProcessor);
-
-        // run the dispatcher (on a new thread).
-        new Thread(dispatcher, "Audio dispatching").start();
-    }
-
-    AudioProcessor fftProcessor = new AudioProcessor() {
-
-        FFT fft = new FFT(bufferSize);
-        float[] amplitudes = new float[bufferSize / 2];
-
-        @Override
-        public void processingFinished() {
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-
-        //extract info from here?
-        public boolean process(AudioEvent audioEvent) {
-
-            float[] audioFloatBuffer = audioEvent.getFloatBuffer();
-            float[] transformbuffer = new float[bufferSize * 2];
-            System.arraycopy(audioFloatBuffer, 0, transformbuffer, 0, audioFloatBuffer.length);
-            fft.forwardTransform(transformbuffer);
-            fft.modulus(transformbuffer, amplitudes);
-            float[] amplitudesTwo = modulus(transformbuffer, amplitudes);
-            // just extract current pitch from spectrogramPanel, amplitude 
-//                        System.out.println("Pitch: " + panel.currentPitch);
-//                        System.out.println("Amplitudes: " + writeAmplitudes(amplitudes));
-            System.out.println("Amplitudes 2: " + writeAmplitudesTwo(amplitudesTwo));
-//                        System.out.println("Time: " + System.nanoTime());
-//                        System.out.println("FFT: " + fft);
-            panel.drawFFT(pitch, amplitudes, fft);
-            //should the analysis take data from Spectrogram.java or SpectrogramPanel.java?
-            System.out.println(countIter);
-            countIter++;
-            a = getInfo(amplitudes);
-           
-            if (countIter % 2 == 0) {
-                if(a.isReady()){
-                String poa = "";
-//                if (!(panel.getA().returnPOA().isEmpty())) {
-                for (String s : a.returnPOA()) {
-                    poa = poa + ", " + s;
-                }
-                System.out.println("POA: " + poa);
-//                }
+        
+        public String writeAmplitudesTwo(float[] amplitudes){
+             String results = "";
+            for(int a = 0; a < amplitudes.length; a++){
+                results = results + " " + Float.toString(amplitudes[a]);
             }
-            }
-            panel.repaint();
-            return true;
+            return results;
         }
-
-    };
-
-    @Override
-    public void handlePitch(PitchDetectionResult pitchDetectionResult, AudioEvent audioEvent) {
-        if (pitchDetectionResult.isPitched()) {
-            pitch = pitchDetectionResult.getPitch();
-        } else {
-            pitch = -1;
-        }
-
-    }
-
-    public String writeAmplitudes(float[] amplitudes) {
-        String results = "";
-        for (int a = 0; a < amplitudes.length; a++) {
-            results = results + " " + Float.toString(amplitudes[a]);
-        }
-        return results;
-    }
-
-    public String writeAmplitudesTwo(float[] amplitudes) {
-        String results = "";
-        for (int a = 0; a < amplitudes.length; a++) {
-            results = results + " " + Float.toString(amplitudes[a]);
-        }
-        return results;
-    }
-
-    public float[] modulus(final float[] data, final float[] amplitudes) {
-        float[] newAmplitudes = new float[amplitudes.length];
-        assert data.length / 2 == amplitudes.length;
-
-        for (int i = 0; i < amplitudes.length; i++) {
-            final int index = i;
-            final int realIndex = 2 * index;
-            final int imgIndex = 2 * index + 1;
-            final float modulus = data[realIndex] * data[realIndex] + data[imgIndex] * data[imgIndex];
-            double a = Math.sqrt(modulus);
-            newAmplitudes[i]
-                    = (float) a;
-
-        }
-        return newAmplitudes;
-    }
-
-    public Analysis getInfo(float[] amplitudes) {
-        Analysis result;
-        DataPoint dp;
-        ArrayList<DataPoint> dpAL = new ArrayList();
-//        ArrayList<DataPoint> dpAL2 = new ArrayList();
-        ArrayList<Analysis> anAL = new ArrayList();
-
-        int gv = 0;
-        double maxAmplitude = 0;
-        //for every pixel calculate an amplitude
-        float[] pixeledAmplitudes = new float[getHeight()];
-        //iterate the lage arrray and map to pixels
-        for (int i = amplitudes.length / 800; i < amplitudes.length; i++) {
-            int pixelY = frequencyToBin(i * 44100 / (amplitudes.length * 8));
-            pixeledAmplitudes[pixelY] += amplitudes[i];
-            maxAmplitude = Math.max(pixeledAmplitudes[pixelY], maxAmplitude);
-//                     System.out.println("Max Amplitude: " + maxAmplitude);
-        }
-
-        //draw the pixels 
-        for (int i = 0; i < pixeledAmplitudes.length; i++) {
-            Color color = Color.black;
-
-            if (maxAmplitude != 0) {
-
-                final int greyValue = (int) (Math.log1p(pixeledAmplitudes[i] / maxAmplitude) / Math.log1p(1.0000001) * 255);
-//                 
-                gv = greyValue;
-            }
-
-            long printTime = System.nanoTime();
-//                     System.out.println("Print time: " + printTime);
-            dp = new DataPoint(pixeledAmplitudes[i], maxAmplitude, printTime, gv);
-            //fill ArrayList with one buffer fill
-            dpAL.add(dp);
-            
-            //how do we get this into the analysis variable? fill dpa1 and dpa2 here and pass to Analysis?
-
-//                     String poa = "";
-//                     for (String s : a.returnPOA()){
-//                         poa = poa + ", " + s;
-//                     }
-//                     System.out.println("POA: " + poa);
-        }
-        result = new Analysis(dpAL);
-
-        return result;
-    }
-
-    private int frequencyToBin(final double frequency) {
-        final double minFrequency = 50; // Hz
-        final double maxFrequency = 11000; // Hz
-        int bin = 0;
-        final boolean logaritmic = true;
-        if (frequency != 0 && frequency > minFrequency && frequency < maxFrequency) {
-            double binEstimate = 0;
-            if (logaritmic) {
-                final double minCent = PitchConverter.hertzToAbsoluteCent(minFrequency);
-                final double maxCent = PitchConverter.hertzToAbsoluteCent(maxFrequency);
-                final double absCent = PitchConverter.hertzToAbsoluteCent(frequency * 2);
-                binEstimate = (absCent - minCent) / maxCent * getHeight();
-            } else {
-                binEstimate = (frequency - minFrequency) / maxFrequency * getHeight();
-            }
-            if (binEstimate > 700) {
-                System.out.println(binEstimate + "");
-            }
-            bin = getHeight() - 1 - (int) binEstimate;
-        }
-
-        return bin;
-    }
-
-    //this code results in an incmpatible types error. "float[] cannot convert to int"
+        
+        public float[] modulus(final float[] data, final float[] amplitudes) {
+                float[] newAmplitudes = new float[amplitudes.length];
+		assert data.length / 2 == amplitudes.length;
+                
+		for (int i = 0; i < amplitudes.length; i++) {
+                final int index = i;
+                final int realIndex = 2 * index;
+		final int imgIndex =  2 * index + 1;
+		final float modulus = data[realIndex] * data[realIndex] + data[imgIndex] * data[imgIndex];
+		double a = Math.sqrt(modulus);
+                newAmplitudes[i] = 
+                        (float) a;
+			
+		}
+                return newAmplitudes;
+	}
+        
+        //this code results in an incmpatible types error. "float[] cannot convert to int"
 //        public float modulus(final float[] data, final int index) {
 //		final int realIndex = 2 * index;
 //		final int imgIndex =  2 * index + 1;
 //		final float modulus = data[realIndex] * data[realIndex] + data[imgIndex] * data[imgIndex];
 //		return (float) Math.sqrt(modulus);
 //	}
-    public static void main(final String... strings) throws InterruptedException,
-            //PSV Main, program run begins here
-            InvocationTargetException {
-        SwingUtilities.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    UIManager.setLookAndFeel(UIManager
-                            .getSystemLookAndFeelClassName());
-                } catch (Exception e) {
-                    // ignore failure to set default look en feel;
-                }
-                JFrame frame = strings.length == 0 ? new Spectrogram(null) : new Spectrogram(strings[0]);
-                frame.pack();
-                frame.setSize(640, 480);
-                frame.setVisible(true);
-            }
-        });
-    }
+	
+	public static void main(final String... strings) throws InterruptedException,
+                //PSV Main, program run begins here
+			InvocationTargetException {
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+                            
+				try {
+					UIManager.setLookAndFeel(UIManager
+							.getSystemLookAndFeelClassName());
+				} catch (Exception e) {
+					// ignore failure to set default look en feel;
+				}
+				JFrame frame = strings.length == 0 ? new Spectrogram(null) : new Spectrogram(strings[0]) ;
+				frame.pack();
+				frame.setSize(640, 480);
+				frame.setVisible(true);
+			}
+		});
+}
+    
+	
 
 }

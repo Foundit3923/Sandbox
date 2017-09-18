@@ -3,7 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Michael%20Olson/Documents/School/New%20folder/Classes/CSC241/Sandbox/src/Formants/Determine.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Formants/Analysis.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/SoundDetector/SoundDetector.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Spectrogram/SpectrogramPanel.java</file>
+            <file>jar:file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/lib/TarsosDSP-latest.jar!/be/tarsos/dsp/util/fft/FFT.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Spectrogram/Spectrogram.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Spectrogram/PitchDetectionPanel.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Spectrogram/Shared.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/Spectrogram/InputPanel.java</file>
+            <file>file:/C:/Users/Michael/Desktop/Classes/CSC241/Sandbox/src/sandbox/Sandbox.java</file>
         </group>
     </open-files>
 </project-private>

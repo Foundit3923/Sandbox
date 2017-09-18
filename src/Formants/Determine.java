@@ -18,7 +18,7 @@ public class Determine {
     boolean ispoa = false;
 
     private POA[] poa = new POA[8];
-    public int[] first = new int[8];
+    private int[] first = new int[8];
     private int[] second = new int[8];
     private int[] third = new int[8];
     private int[] subtract = new int[8];

@@ -48,8 +48,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 	private Graphics2D bufferedGraphics;
 	
 	private int position;
-        private Analysis a;
-        private int countIter = 0;
+        //private Analysis a;
 	    
 	public SpectrogramPanel(){
 		bufferedImage = new BufferedImage(640*4,480*4, BufferedImage.TYPE_INT_RGB);
@@ -89,19 +88,19 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 	String currentPitch = "";
 	
 // extract info from drawFFT?
-	public void drawFFT(double pitch,float[] amplitudes,FFT fft){
+	public Analysis drawFFT(double pitch,float[] amplitudes,FFT fft, Analysis a){
             DataPoint dp;
             
             int gv = 0;
 		double maxAmplitude=0;
 		//for every pixel calculate an amplitude
 		float[] pixeledAmplitudes = new float[getHeight()];
-		//iterate the lage arrray and map to pixels
+		//iterate the large array and map to pixels
 		 for (int i = amplitudes.length/800; i < amplitudes.length; i++) {
              int pixelY = frequencyToBin(i * 44100 / (amplitudes.length * 8));
              pixeledAmplitudes[pixelY] += amplitudes[i];
              maxAmplitude = Math.max(pixeledAmplitudes[pixelY], maxAmplitude);
-//                     System.out.println("Max Amplitude: " + maxAmplitude);
+                     //System.out.println("Max Amplitude: " + maxAmplitude);
          }
 		 
 		 //draw the pixels 
@@ -112,29 +111,25 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
                  
             	  
             	 final int greyValue = (int) (Math.log1p(pixeledAmplitudes[i] / maxAmplitude) / Math.log1p(1.0000001) * 255);
-//                 System.out.println("Pixel Height: " + pixeledAmplitudes[i]);
-//                 System.out.println("Grey Value: " + greyValue);
+                 //System.out.println("Pixel Height: " + pixeledAmplitudes[i]);
+                 //System.out.println("Grey Value: " + greyValue);
              	 color = new Color(greyValue, greyValue, greyValue);
                  gv = greyValue;
              }
              bufferedGraphics.setColor(color);
         	 bufferedGraphics.fillRect(position, i, 3, 1);
                  long printTime = System.nanoTime();
-//                     System.out.println("Print time: " + printTime);
+                     //System.out.println("Print time: " + printTime);
                      dp = new DataPoint(pixeledAmplitudes[i], maxAmplitude, printTime, gv);
-                     a = new Analysis(i, dp);
-//                     String poa = "";
-//                     for (String s : a.returnPOA()){
-//                         poa = poa + ", " + s;
-//                     }
-//                     System.out.println("POA: " + poa);
+                     if(i == 0) {
+						 a = new Analysis(i, dp, pixeledAmplitudes.length);
+					 }
+					 else{
+                     	a.store(i, dp, pixeledAmplitudes.length);
+					 }
                     
                      
          }
-            System.out.println("DPA1 size: " + a.getDPA1().size());
-            System.out.println("DPA2 size: " + a.getDPA2().size());
-                
-                   
 	
 		 
 		if (pitch != -1) {
@@ -168,6 +163,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 		repaint();
 		position+=3;
 		position = position % getWidth();
+		return a;
 	}
 
        
@@ -189,9 +185,5 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 	@Override
 	public void componentShown(ComponentEvent e) {		
 	}
-        
-        public Analysis getA(){
-            return a;
-        }
 
 }

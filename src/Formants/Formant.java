@@ -4,12 +4,7 @@
  * and open the template in the editor.
  */
 package Formants;
-import Formants.Determine;
-import Formants.Analysis;
-import Formants.DataPoint;
-import Formants.Formant;
-import Formants.POA;
-        
+
 /**
  *
  * @author Michael
@@ -17,14 +12,11 @@ import Formants.POA;
 public class Formant {
     boolean isFormant = false;
     double freq = 0;
-    double jk = 0;
-    Determine d = new Determine(freq,freq,freq);
-  
+    Determine d;
     
     public Formant(double i){
         freq = i;
-         isFormant = isFormant(freq);
-       
+        isFormant = isFormant(freq);
     }
     
     private boolean isFormant(double i){
@@ -46,13 +38,7 @@ public class Formant {
     
     public boolean isFormant1(){
         boolean result = false;
-                 for(int k : d.first){
-//         for(int i = 0; 
-//                 i 
-//                 < 
-//                 d.first.length; 
-//                 i ++){
-//            int k = d.first[i];
+        for(int k : d.getFirst()){
             if(freq <= (k + 150) && freq >= (k - 150)){
                 result = true;
             }
