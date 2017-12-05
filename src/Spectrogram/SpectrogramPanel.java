@@ -32,6 +32,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
@@ -48,7 +49,10 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 	private Graphics2D bufferedGraphics;
 	
 	private int position;
-        //private Analysis a;
+	ArrayList<DataPoint> dpa1 = new ArrayList<>();
+	ArrayList<DataPoint> dpa2 = new ArrayList<>();
+	ArrayList<DataPoint> overflowBuffer = new ArrayList<>();
+	boolean isFull = false;
 	    
 	public SpectrogramPanel(){
 		bufferedImage = new BufferedImage(640*4,480*4, BufferedImage.TYPE_INT_RGB);
@@ -121,15 +125,46 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
                  long printTime = System.nanoTime();
                      //System.out.println("Print time: " + printTime);
                      dp = new DataPoint(pixeledAmplitudes[i], maxAmplitude, printTime, gv);
-                     if(i == 0) {
-						 a = new Analysis(i, dp, pixeledAmplitudes.length);
+                     /*Initialize the first time*/
+                     //if(i == 0) {
+					//	 a = new Analysis(i, dp, pixeledAmplitudes.length);
+					// }
+					 /*Add more values afterwards*/
+					// else{
+
+        /*If the for loop is still active*/
+				 if(i <= pixeledAmplitudes.length) {
+            /*If the first arraylist is not full*/
+					 if (dpa1.size() <= 2048) {
+						 //dpa1.add(i, dp);
+						 dpa1.add(dp);
 					 }
+            /*If the second arraylist is not full*/
+					 else if (dpa2.size() <= 2048) {
+						 //dpa2.add(i, dp);
+						 dpa2.add(dp);
+					 }
+            /*If both are full*/
 					 else{
-                     	a.store(i, dp, pixeledAmplitudes.length);
-					 }
-                    
-                     
+					 	overflowBuffer.add(dp);
+					 	a.evaluate(dpa1, dpa2);
+					 	dpa1.clear();
+					 	dpa1.addAll(overflowBuffer);
+					 	dpa1.addAll(dpa2);
+					 	dpa2.clear();
+				 }
+			 }
          }
+		if(dpa2.size() != 0){
+			a.evaluate(dpa1, dpa2);
+			dpa1.clear();
+			dpa1.addAll(overflowBuffer);
+			dpa1.addAll(dpa2);
+			dpa2.clear();
+		}
+
+
+
 	
 		 
 		if (pitch != -1) {

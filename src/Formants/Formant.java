@@ -12,7 +12,7 @@ package Formants;
 public class Formant {
     boolean isFormant = false;
     double freq = 0;
-    Determine d;
+    Determine d = new Determine(0,0,0);
     
     public Formant(double i){
         freq = i;

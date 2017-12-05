@@ -69,7 +69,8 @@ import be.tarsos.dsp.util.fft.FFT;
 public class Spectrogram extends JFrame implements PitchDetectionHandler {
 	
 	//initalize all variables, make private
-	public Analysis a;
+	//initialize Analysis Variable
+	public Analysis a = new Analysis();
 	private static final long serialVersionUID = 1383896180290138076L;
 	private final SpectrogramPanel panel;
 	private AudioDispatcher dispatcher;

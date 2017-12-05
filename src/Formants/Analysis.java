@@ -5,6 +5,7 @@
  */
 package Formants;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 /**
@@ -27,39 +28,20 @@ public class Analysis {
     String[] poa;
     int threshold = 3;
 
-    public Analysis(int i, DataPoint dp, int size) {
-        store(i, dp, size);
+   // public Analysis(int i, DataPoint dp, int size) {
+        public Analysis(){
+        //store(i, dp, size);
     }
 
-    public void store(int i, DataPoint dp, int size){
-        /*If the for loop is still active*/
-        if(i <= size) {
-            /*If the first arraylist is not full*/
-            if (dpa1.size() <= 2048) {
-                dpa1.add(i, dp);
-            }
-            /*If the second arraylist is not full*/
-            else if (dpa2.size() <= 2048) {
-                dpa2.add(i, dp);
-            }
-            /*If both are full*/
-            else{
+    public void evaluate(ArrayList<DataPoint> dpa1, ArrayList<DataPoint> dpa2){
+
                 /*Evaluate*/
                 fmt1 = analyzeBuffer(dpa1);
                 fmt2 = analyzeBuffer(dpa2);
                 fmt3 = compareBuffer(fmt1, fmt2);
                 returnPOA();
-            }
-        }
-        /*If the for loop is done*/
-        else{
-            /*evaluate remaining data*/
-            fmt1 = analyzeBuffer(dpa1);
-            fmt2 = analyzeBuffer(dpa2);
-            fmt3 = compareBuffer(fmt1, fmt2);
-            returnPOA();
-        }
     }
+
 
     //public String[] returnPOA() {
     public void returnPOA(){
@@ -107,31 +89,46 @@ public class Analysis {
         //declare variables
         int count1 = 0;
         int count2 = 0;
-        ArrayList<DataPoint> stored = new ArrayList();
+        ArrayList<DataPoint> stored = new ArrayList<>(dp.size());
         Formant[] buffForm = new Formant[12];
-        f = new Formant(greatest);
+        //f = new Formant(greatest);
 
+        //control for infinite loop
         //while loop checks if datapoint is above threshhold, finds the largest number, and removes all datapoints within a given formant
         while (!(dp.isEmpty())) {
 
-            //checks if data point is above threshold, if yes:  stores datat point in new arraylist
-            for (int i = 0; i < dp.size(); i++) {
-                if (dp.get(i).returnFreq() > threshold) {
-                    stored.add(count1, dp.get(i));
+            //checks if data point is above threshold, if yes:  stores data point in new arraylist
+            for (DataPoint td : dp) {
+                if (td.returnFreq() > threshold) {
+                    stored.add(count1, td);
                     count1++;
 
                 }
                 //checks if data point is the largest number
-                if (dp.get(i).returnFreq() > greatest) {
-                    greatest = dp.get(i).returnFreq();
+                if (td.returnFreq() > greatest) {
+                    greatest = td.returnFreq();
+                    f = new Formant(greatest);
                 }
             }
+            //only removes data points that are formants
             //removes all data points within a given formant
             if (f.isFormant) {
                 buffForm[count2] = f;
                 count2++;
                 for (int k = 0; k < stored.size(); k++) {
                     if (stored.get(k).returnFreq() <= (f.determineFormant() + 150) && stored.get(k).returnFreq() >= (f.determineFormant() - 150)) {
+                        stored.remove(k);
+
+                    }
+                }
+
+            }
+            //if freqeuncy is not formant remove all instances of that data point
+            else{
+                buffForm[count2] = f;
+                count2++;
+                for (int k = 0; k < stored.size(); k++) {
+                    if (stored.get(k).returnFreq() == f.freq) {
                         stored.remove(k);
 
                     }

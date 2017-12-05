@@ -26,7 +26,7 @@ public class Determine {
 
     private POA poaOb;
 
-    public Determine(double fm1, double fm2, double fm3) {
+    public Determine(double fm1, double fm2, double fm3){
         f1 = fm1;
         f2 = fm2;
         f3 = fm3;
@@ -36,8 +36,8 @@ public class Determine {
         fillThird();
         fillPOA();
         fillSubtract();
-        symbol = getPOA(f1, f2, f3);
-        ispoa = isPOA(f1, f2, f3);
+        //symbol = getPOA(f1, f2);
+        //ispoa = isPOA(f1, f2);
     }
 
     
@@ -176,7 +176,7 @@ public class Determine {
         }
     }
 
-    private String getPOA(double f1, double f2, double f3) {
+    public String getPOA(double f1, double f2) {
         String result = "";
         for (int i = 0; i < subtract.length; i++) {
             if ((f2 - f1) == subtract[i]) {
@@ -186,7 +186,7 @@ public class Determine {
         return result;
     }
     
-    private boolean isPOA(double f1, double f2, double f3) {
+    public boolean isPOA(double f1, double f2) {
         boolean result = false;
         for (int i = 0; i < subtract.length; i++) {
             if ((f2 - f1) == subtract[i]) {
