@@ -156,7 +156,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 
 			 }
          }
-		if(dpa2.size() != 0){
+		if(dpa2.size() > 0){
 			a.evaluate(dpa1, dpa2);
 			dpa1.clear();
 			dpa1.addAll(overflowBuffer);
