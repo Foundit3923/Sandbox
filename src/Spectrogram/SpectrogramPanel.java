@@ -153,6 +153,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 					 	dpa1.addAll(dpa2);
 					 	dpa2.clear();
 				 }
+
 			 }
          }
 		if(dpa2.size() != 0){
