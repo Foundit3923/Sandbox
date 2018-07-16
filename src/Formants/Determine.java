@@ -18,11 +18,11 @@ public class Determine {
     boolean ispoa = false;
 
     private POA[] poa = new POA[8];
-    private int[] first = new int[8];
-    private int[] second = new int[8];
-    private int[] third = new int[8];
-    private int[] subtract = new int[8];
-    private String[] ipa = new String[8];
+    private int[] first = {280,400,550,690,710,590,450,310};
+    private int[] second = {2250,1920,1770,1660,1100,880,1030,870};
+    private int[] third = {2890,2560,2490,2490,2540,2540,2380,2250};
+    private int[] subtract = {1970,1480,1220,970,390,290,580,560};
+    private String[] ipa = {"i","ɪ","ɛ","æ","a","ɔ","ʊ","u"};
 
     private POA poaOb;
 
@@ -30,12 +30,11 @@ public class Determine {
         f1 = fm1;
         f2 = fm2;
         f3 = fm3;
-        fillIPA();
-        fillFirst();
-        fillSecond();
-        fillThird();
+        //fillFirst();
+        //fillSecond();
+        //fillThird();
         fillPOA();
-        fillSubtract();
+        //fillSubtract();
         //symbol = getPOA(f1, f2);
         //ispoa = isPOA(f1, f2);
     }
@@ -58,7 +57,8 @@ public class Determine {
         }
     }
 
-    private void fillIPA() {
+/* Replaced by initializing arrays with necessary values
+ private void fillIPA() {
 
         for (int i = 0; i < ipa.length; i++) {
             if (i == 0) {
@@ -119,6 +119,7 @@ public class Determine {
     }
 
     private void fillSecond() {
+        {2250,1920,1770,1660,1100,880,1030,870}
         for (int i = 0; i < second.length; i++) {
             if (i == 0) {
                 second[i] = 2250;
@@ -148,6 +149,7 @@ public class Determine {
     }
 
     private void fillThird() {
+        {2890,2560,2490,2490,2540,2540,2380,2250}
         for (int i = 0; i < third.length; i++) {
             if (i == 0) {
                 third[i] = 2890;
@@ -175,7 +177,7 @@ public class Determine {
             }
         }
     }
-
+*/
     public String getPOA(double f1, double f2) {
         String result = "";
         for (int i = 0; i < subtract.length; i++) {
@@ -196,7 +198,9 @@ public class Determine {
         return result;
     }
 
+  /* Replaced by initializing arrays with necessary values
     private void fillSubtract() {
+        {1970,1480,1220,970,390,290,580,560}
         for (int i = 0; i < subtract.length; i++) {
             if (i == 0) {
                 subtract[i] = 1970;
@@ -223,6 +227,6 @@ public class Determine {
                 subtract[i] = 560;
             }
         }
-    }
+    }*/
 
 }

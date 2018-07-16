@@ -312,7 +312,8 @@ public class SoundDetector extends JFrame implements AudioProcessor {
                 System.out.println(temp);
 	}
 	@Override
-	public void processingFinished() {		
+	public void processingFinished() {
+		System.out.println("the end");
 		
 	}
 

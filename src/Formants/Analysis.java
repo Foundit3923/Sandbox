@@ -81,7 +81,7 @@ public class Analysis {
            }
        }
        for(int m = 0; m < res.size(); m++){
-           System.out.println("POA: " + res.get(m));
+           System.out.println(res.get(m) + " ");
        }
     }
 
@@ -95,6 +95,7 @@ public class Analysis {
 
         //control for infinite loop
         //while loop checks if datapoint is above threshhold, finds the largest number, and removes all datapoints within a given formant
+        //assumes that a sound is only made once in a 100ms time frame
         while (!(dp.isEmpty())) {
 
             //checks if data point is above threshold, if yes:  stores data point in new arraylist
@@ -110,7 +111,7 @@ public class Analysis {
                     f = new Formant(greatest);
                 }
             }
-            //only removes data points that are formants
+            //only removes data points that are a given formant
             //removes all data points within a given formant
             if (f.isFormant) {
                 buffForm[count2] = f;

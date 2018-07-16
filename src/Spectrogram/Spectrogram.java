@@ -26,6 +26,7 @@ ABOUT: this is the main class in the Spectrogram analysis system. It handles the
 package Spectrogram;
 //Import all necessary items
 import Formants.Analysis;
+import Formants.DataPoint;
 import Spectrogram.PitchDetectionPanel;
 import Spectrogram.InputPanel;
 import java.awt.BorderLayout;
@@ -36,7 +37,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 
 import javax.sound.sampled.AudioFormat;
@@ -47,11 +50,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.basic.BasicBorders;
 
 import be.tarsos.dsp.AudioDispatcher;
 import be.tarsos.dsp.AudioEvent;
@@ -70,12 +72,15 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 	
 	//initalize all variables, make private
 	//initialize Analysis Variable
-	public Analysis a = new Analysis();
+
+	public static LinkedHashMap<Long, DataPoint> linkedHashMap_Of_Audio_Data = new LinkedHashMap<Long, DataPoint>();
+	public static Analysis a = new Analysis();
 	private static final long serialVersionUID = 1383896180290138076L;
 	private final SpectrogramPanel panel;
 	private AudioDispatcher dispatcher;
 	private Mixer currentMixer;	
 	private PitchEstimationAlgorithm algo;
+	private ButtonPanel button;
 	private double pitch; 
 	
 	private float sampleRate = 44100;
@@ -119,12 +124,18 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 		panel = new SpectrogramPanel();
 		algo = PitchEstimationAlgorithm.DYNAMIC_WAVELET;
 		this.fileName = fileName;
+
+
 		
                 //create new JPanel set equal to new PitchDetectionPanel with parameters algoChangeListener
 		JPanel pitchDetectionPanel = new PitchDetectionPanel(algoChangeListener);
 		
                 //create new JPanel set equal to new InputPanel()
 		JPanel inputPanel = new InputPanel();
+
+
+
+
 	
                 //access addPropertyChangeListener() in inputPanel variable, set parameters to "mixer", and new PropertyChangeListener()
 		inputPanel.addPropertyChangeListener("mixer",
@@ -144,10 +155,53 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 						}
 					}
 				});
+
+		JPanel buttonPanel = new ButtonPanel();
+
+		buttonPanel.addPropertyChangeListener("transcript", new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+
+				try{
+					Collection<DataPoint> audio_Data_Set = linkedHashMap_Of_Audio_Data.values();
+					Iterator<DataPoint> iterator = audio_Data_Set.iterator();
+
+					ArrayList<DataPoint> first_Data_Point_Array_List = new ArrayList<DataPoint>();
+					ArrayList<DataPoint> second_Data_Point_Array_List = new ArrayList<DataPoint>();
+
+					long datapoint_counter = 0;
+					while(iterator.hasNext()){
+						if(datapoint_counter < 2048){
+							//Nullpointer error
+							DataPoint next = iterator.next();
+							first_Data_Point_Array_List.add(iterator.next());
+							datapoint_counter ++;
+						}
+						else if(datapoint_counter == (2048 * 2)){
+							a.evaluate(first_Data_Point_Array_List, second_Data_Point_Array_List);
+							first_Data_Point_Array_List = second_Data_Point_Array_List;
+							second_Data_Point_Array_List.clear();
+							second_Data_Point_Array_List.add(iterator.next());
+							datapoint_counter ++;
+						}
+						else{
+							second_Data_Point_Array_List.add(iterator.next());
+							datapoint_counter ++;
+						}
+					}
+				}
+
+				catch(IndexOutOfBoundsException e){
+
+				}
+				button.transcript = " ";
+			}
+		});
 		
 		JPanel containerPanel = new JPanel(new GridLayout(1,0));
 		containerPanel.add(inputPanel);
 		containerPanel.add(pitchDetectionPanel);
+		containerPanel.add(buttonPanel);
 		this.add(containerPanel,BorderLayout.NORTH);
 		
 		JPanel otherContainer = new JPanel(new BorderLayout());
@@ -221,7 +275,7 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
                 
                 //extract info from here?
 		public boolean process(AudioEvent audioEvent) {
-                        
+
                         
 			float[] audioFloatBuffer = audioEvent.getFloatBuffer();
 			float[] transformbuffer = new float[bufferSize*2];
@@ -235,7 +289,12 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
                         //System.out.println("Amplitudes 2: " + writeAmplitudesTwo(amplitudesTwo));
                         //System.out.println("Time: " + System.nanoTime());
                         //System.out.println("FFT: " + fft);
-			a = panel.drawFFT(pitch, amplitudes,fft, a);
+
+			linkedHashMap_Of_Audio_Data = panel.drawFFT(pitch, amplitudes,fft, linkedHashMap_Of_Audio_Data);
+			//Once HashMap reaches 4096 split in two and compare, then remove the first and add new data after second
+			if(linkedHashMap_Of_Audio_Data.size() >= 4096){
+
+			}
 			panel.repaint();
 
 			return true;
@@ -297,10 +356,11 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 	public static void main(final String... strings) throws InterruptedException,
                 //PSV Main, program run begins here
 			InvocationTargetException {
+
 		SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-                            
+
 				try {
 					UIManager.setLookAndFeel(UIManager
 							.getSystemLookAndFeelClassName());
@@ -313,6 +373,10 @@ public class Spectrogram extends JFrame implements PitchDetectionHandler {
 				frame.setVisible(true);
 			}
 		});
+		// after main, perform analysis
+
+
+
 }
     
 	

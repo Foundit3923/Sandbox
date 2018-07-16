@@ -13,26 +13,26 @@ public class DataPoint {
 
     double amplitude;
     double frequency;
-    double freqMulti = 137.5;
+    double freqMulti = 5.2083333333; //137.5
     double pixelHeight;
     double maxAmp;
+    double fill = 0;
     long nanoTime;
     int grayValue;
 
     double[] amps;
 
-    public DataPoint(double ph, double ma, long nt, int gv) {
-        pixelHeight = ph;
+    public DataPoint(/*double ph*/ double f, double ma, long nt, int gv) {
+        //pixelHeight = ph;
         maxAmp = ma;
         nanoTime = nt;
         grayValue = gv;
-        frequency = pixelHeight * freqMulti;
+        frequency = /*pixelHeight * freqMulti*/ f;
         //set size of array to amount of colors
         amps = new double[255];
         
         //for loop fills, first position with 20, then the rest in incriments of 78ish
         for (int i = 0; i < amps.length; i++) {
-            double fill = 0;
             if (fill < 20000) {
                 amps[i] = fill;
                 if (fill < 20) {

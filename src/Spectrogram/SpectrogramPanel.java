@@ -33,6 +33,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import javax.swing.JComponent;
 
@@ -90,25 +91,32 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 
 
 	String currentPitch = "";
+	double frequency = 0.0;
 	
 // extract info from drawFFT?
-	public Analysis drawFFT(double pitch,float[] amplitudes,FFT fft, Analysis a){
+	public LinkedHashMap drawFFT(double pitch, float[] amplitudes, FFT fft, LinkedHashMap<Long, DataPoint> linkedHashMap_Of_Audio_Data){
             DataPoint dp;
             
             int gv = 0;
 		double maxAmplitude=0;
+		double frequency = 0.0;
+
 		//for every pixel calculate an amplitude
 		float[] pixeledAmplitudes = new float[getHeight()];
+
 		//iterate the large array and map to pixels
 		 for (int i = amplitudes.length/800; i < amplitudes.length; i++) {
+		 	 //frequency = i * 44100 / (amplitudes.length * 8);
+				// frequency = Integer.parseInt(currentPitch);
              int pixelY = frequencyToBin(i * 44100 / (amplitudes.length * 8));
              pixeledAmplitudes[pixelY] += amplitudes[i];
              maxAmplitude = Math.max(pixeledAmplitudes[pixelY], maxAmplitude);
                      //System.out.println("Max Amplitude: " + maxAmplitude);
          }
-		 
+		//System.out.println(frequency);
 		 //draw the pixels 
 		 for (int i = 0; i < pixeledAmplitudes.length; i++) {
+
     		 Color color = Color.black;
                  
              if (maxAmplitude != 0) {
@@ -124,7 +132,9 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
         	 bufferedGraphics.fillRect(position, i, 3, 1);
                  long printTime = System.nanoTime();
                      //System.out.println("Print time: " + printTime);
-                     dp = new DataPoint(pixeledAmplitudes[i], maxAmplitude, printTime, gv);
+			 		frequency = pitch;
+                     dp = new DataPoint(/*pixeledAmplitudes[i]*/ frequency, maxAmplitude, printTime, gv);
+                     linkedHashMap_Of_Audio_Data.put(dp.getNanoTime(), dp);
                      /*Initialize the first time*/
                      //if(i == 0) {
 					//	 a = new Analysis(i, dp, pixeledAmplitudes.length);
@@ -132,19 +142,19 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 					 /*Add more values afterwards*/
 					// else{
 
-        /*If the for loop is still active*/
+        /*If the for loop is still active
 				 if(i <= pixeledAmplitudes.length) {
-            /*If the first arraylist is not full*/
+            /*If the first arraylist is not full
 					 if (dpa1.size() <= 2048) {
 						 //dpa1.add(i, dp);
 						 dpa1.add(dp);
 					 }
-            /*If the second arraylist is not full*/
+            /*If the second arraylist is not full
 					 else if (dpa2.size() <= 2048) {
 						 //dpa2.add(i, dp);
 						 dpa2.add(dp);
 					 }
-            /*If both are full*/
+            /*If both are full
 					 else{
 					 	overflowBuffer.add(dp);
 					 	a.evaluate(dpa1, dpa2);
@@ -154,15 +164,15 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 					 	dpa2.clear();
 				 }
 
-			 }
+			 }*/
          }
-		if(dpa2.size() > 0){
+		/*if(dpa2.size() > 0){
 			a.evaluate(dpa1, dpa2);
 			dpa1.clear();
 			dpa1.addAll(overflowBuffer);
 			dpa1.addAll(dpa2);
 			dpa2.clear();
-		}
+		}*/
 
 
 
@@ -173,6 +183,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
               bufferedGraphics.setColor(Color.RED);
               bufferedGraphics.fillRect(position, pitchIndex, 1, 1);
               currentPitch = new StringBuilder("Current frequency: ").append((int) pitch).append("Hz").toString();
+              frequency =  pitch;
         }
 		
 		
@@ -199,7 +210,7 @@ public class SpectrogramPanel extends JComponent implements ComponentListener{
 		repaint();
 		position+=3;
 		position = position % getWidth();
-		return a;
+		return linkedHashMap_Of_Audio_Data;
 	}
 
        
